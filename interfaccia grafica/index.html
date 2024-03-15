@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <style>
+        button {
+            background-color: #ffcc00;
+            border: 2px solid #000000;
+            color: #000000;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .button:hover {
+            background-color: #ffdb4d;
+            transform: scale(1.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        body {
+            background-color: #c0ddff;
+        }
+
+        .functions {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-field {
+            padding: 10px;
+            width: 400px;
+
+            font-size: 16px;
+            border: 2px solid #000000;
+            background-color: #ffcc00;
+            color: #000000;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #ffdb4d;
+        }
+        #set{
+            height: 200px;
+        }
+
+        .modal{
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 200px;
+            overflow: auto;
+            border: 2px solid #000000;
+            background-color: #ffcc00;
+            color: #000000;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- import jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <div class="modal">
+        <div class="modal-content">
+            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bold;">SENTIMENTO PREVALENTE</p>
+        </div>
+        <div class="POSITIVE sentiment-div" style="display: none;">
+            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bold; color: green; ">POSITIVO</p>
+        </div>
+        <div class="NEGATIVE sentiment-div" style="display: none;">
+            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bolder; color: red; ">NEGATIVO</p>
+        </div>
+        <div class="NEUTRAL sentiment-div" style="display: none;">
+            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bold; color:gray; ">NEUTRALE</p>
+        </div>
+    </div>
+    <div class="container">
+        <img class="logo" src="./neutrale.png">
+        <img class="logo" src="./felice.png"  style="display: none;">
+        <img class="logo" src="./triste.png"  style="display: none;">
+        <h1>MonkAI-sentiment-analysis</h1>
+        <div class="choices">
+            <button class="choice-button" value="phrase">Analizza una frase</button>
+            <button class="choice-button" value="set">Analizza un insieme di frasi</button>
+            <button class="choice-button" value="ig-post">Analizza i commenti di un post</button>
+        </div>
+        <div class="phrase functions" style="display: none;">
+            <input class="input-field" type="text" id="phrase" name="phrase" placeholder="Inserisci la frase da analizzare">
+            <button class="button" id="phrase-button">Analizza</button>
+            <button class="back-button" >Back</button>
+        </div>
+        <div class="set functions" style="display: none;">
+            <textarea class="input-field"  id="set" name="set" placeholder="Inserisci le frasi da analizzare (una per ogni riga)"></textarea>
+            <button class="button" id="set-button">Analizza</button>
+            <button class="button" id="download-result-set" style="display: none;">Scarica risultati</button>
+            <button class="back-button" >Back</button>
+
+        </div>
+        <div class="ig-post functions" style="display: none;">
+            <input class="input-field"  type="text" id="phrase" name="phrase" placeholder="Link post instagram">
+            <button class="button" id="ig-post-button">Analizza</button>
+            <button class="back-button" >Back</button>
+
+        </div>
+    </div>
+</body>
+<script>
+    $(document).ready(function () {
+        $(".choice-button").click(function () {
+            var value = "." + $(this).val();
+            $(".functions").hide();
+            $(".choices").slideUp(() => {
+                $(value).slideDown();
+            });
+        });
+        $(".back-button").click(function () {
+            $(".input-field").val("");
+            $(".functions").slideUp(() => {
+                $(".choices").slideDown();
+            });
+            $(".logo").hide();
+            $(".logo").eq(0).show();
+        });
+
+        const showCorrectMonkey = (sentiment) =>{
+            $(".logo").hide();
+            $(".modal").show();
+            $(".sentiment-div").hide();
+            $(`.${sentiment}`).show();
+            if (sentiment === "POSITIVE") {
+                $(".logo").eq(1).show();
+            } else if (sentiment === "NEGATIVE") {
+                $(".logo").eq(2).show();
+            } else {
+                $(".logo").eq(0).show();
+            }
+            setTimeout(() => {
+                $(".modal").fadeOut(1000);
+            }, 3000);
+
+        }
+
+        $("#phrase-button").click(function () {
+            var phrase = $("#phrase").val();
+            axios.get(`http://localhost:8000/predict/${phrase}`).then((response) => {
+                console.log(response.data);
+                showCorrectMonkey(response.data.prediction);
+                
+            });
+        });
+        
+        $("#set-button").click(function () {
+            var set = $("#set").val();
+            const items = set.split("\n");
+            axios.post(`http://localhost:8000/predict`, {items}).then((response) => {
+                const predictions = response.data.predictions;
+                const positive  = predictions.filter((el) => el.prediction === "POSITIVE");
+                const negative  = predictions.filter((el) => el.prediction === "NEGATIVE");
+                const neutral  = predictions.filter((el) => el.prediction === "NEUTRAL");
+                console.log("positive : ",positive.length," negative :", negative.length," neutral : " ,neutral.length);
+                if (positive.length > negative.length && positive.length > neutral.length) {
+                    showCorrectMonkey("POSITIVE");
+                } else if (negative.length > positive.length && negative.length > neutral.length) {
+                    showCorrectMonkey("NEGATIVE");
+                } else {
+                    showCorrectMonkey("NEUTRAL");
+                }
+                $("#download-result-set").slideDown();
+                $("#download-result-set").click(function () {
+                    const text = predictions.map((el) => `original text : ${el.text} | sentiment : ${el.prediction}`).join("\n");
+                    const blob = new Blob([text], { type: "text/plain" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "result.txt";
+                    a.click();
+                });
+            });
+        });
+
+    });
+</script>
+
+</html>

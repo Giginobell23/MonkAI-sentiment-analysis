@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 import spacy
 from typing import List
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 class StringList(BaseModel):
     items: List[str]
@@ -55,6 +56,13 @@ def predict_sentiment(text):
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["GET", "POST","OPTIONS"],  
+    allow_headers=["*"],  
+)
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
