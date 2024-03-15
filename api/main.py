@@ -66,11 +66,11 @@ def predict(text: str):
 
 @app.post("/predict")
 def predict_post(comments: StringList):
-    predictions = {"NEUTRAL": [], "POSITIVE": [], "NEGATIVE": []}
+    predictions = []
     for text in comments.items:
-        print(text)
         prediction = predict_sentiment(text)
-        predictions[prediction].append({"text": text, "prediction": prediction})
+        predictions.append({"text": text, "prediction": prediction})
+    predictions.sort(key=lambda x: x["prediction"], reverse=True)
     return {"predictions": predictions}
 
 
