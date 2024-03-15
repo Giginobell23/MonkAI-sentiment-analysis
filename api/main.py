@@ -5,6 +5,11 @@ import re
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import spacy
+from typing import List
+from pydantic import BaseModel
+
+class StringList(BaseModel):
+    items: List[str]
 
 nlp = spacy.load("it_core_news_sm")
 
@@ -58,6 +63,15 @@ def read_root():
 def predict(text: str):
     prediction = predict_sentiment(text)
     return {"text": text, "prediction": prediction}
+
+@app.post("/predict")
+def predict_post(comments: StringList):
+    predictions = {"NEUTRAL": [], "POSITIVE": [], "NEGATIVE": []}
+    for text in comments.items:
+        print(text)
+        prediction = predict_sentiment(text)
+        predictions[prediction].append({"text": text, "prediction": prediction})
+    return {"predictions": predictions}
 
 
 if __name__ == "__main__":
