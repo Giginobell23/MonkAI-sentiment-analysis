@@ -8,6 +8,9 @@ import spacy
 from typing import List
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+import requests
+from bs4 import BeautifulSoup
+
 
 class StringList(BaseModel):
     items: List[str]
@@ -80,6 +83,7 @@ def predict_post(comments: StringList):
         predictions.append({"text": text, "prediction": prediction})
     predictions.sort(key=lambda x: x["prediction"], reverse=True)
     return {"predictions": predictions}
+
 
 
 if __name__ == "__main__":

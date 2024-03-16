@@ -55,14 +55,16 @@
             outline: none;
             transition: all 0.3s ease;
         }
+
         .input-field:focus {
             border-color: #ffdb4d;
         }
-        #set{
+
+        #set {
             height: 200px;
         }
 
-        .modal{
+        .modal {
             display: none;
             position: fixed;
             z-index: 1;
@@ -76,6 +78,50 @@
             background-color: #ffcc00;
             color: #000000;
         }
+
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .file-input-button {
+            background-color: #ffcc00;
+            border: 2px solid #000000;
+            color: #000000;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label {
+            font-size: 16px;
+            padding: 10px;
+            margin-left: 42%;
+            background-color: #ffcc00;
+            border: 2px solid #000000;
+            color: #000000;
+            cursor: pointer;
+        }
+
+        .generic-label {
+            font-size: 16px;
+            padding: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #ffcc00;
+            border: 2px solid #000000;
+            color: #000000;
+            cursor: pointer;
+        }
+
+
+        .file-input {
+            opacity: 0;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -85,22 +131,26 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <div class="modal">
         <div class="modal-content">
-            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bold;">SENTIMENTO PREVALENTE</p>
+            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bold;">SENTIMENTO
+                PREVALENTE</p>
         </div>
         <div class="POSITIVE sentiment-div" style="display: none;">
-            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bold; color: green; ">POSITIVO</p>
+            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bold; color: green; ">
+                POSITIVO</p>
         </div>
         <div class="NEGATIVE sentiment-div" style="display: none;">
-            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bolder; color: red; ">NEGATIVO</p>
+            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bolder; color: red; ">
+                NEGATIVO</p>
         </div>
         <div class="NEUTRAL sentiment-div" style="display: none;">
-            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bold; color:gray; ">NEUTRALE</p>
+            <p class="testo-mostrato" style="text-align: center; font-size: large; font-weight: bold; color:gray; ">
+                NEUTRALE</p>
         </div>
     </div>
     <div class="container">
         <img class="logo" src="./neutrale.png">
-        <img class="logo" src="./felice.png"  style="display: none;">
-        <img class="logo" src="./triste.png"  style="display: none;">
+        <img class="logo" src="./felice.png" style="display: none;">
+        <img class="logo" src="./triste.png" style="display: none;">
         <h1>MonkAI-sentiment-analysis</h1>
         <div class="choices">
             <button class="choice-button" value="phrase">Analizza una frase</button>
@@ -108,21 +158,29 @@
             <button class="choice-button" value="ig-post">Analizza i commenti di un post</button>
         </div>
         <div class="phrase functions" style="display: none;">
-            <input class="input-field" type="text" id="phrase" name="phrase" placeholder="Inserisci la frase da analizzare">
+            <input class="input-field" type="text" id="phrase" name="phrase"
+                placeholder="Inserisci la frase da analizzare">
             <button class="button" id="phrase-button">Analizza</button>
-            <button class="back-button" >Back</button>
+            <button class="back-button">Back</button>
         </div>
         <div class="set functions" style="display: none;">
-            <textarea class="input-field"  id="set" name="set" placeholder="Inserisci le frasi da analizzare (una per ogni riga)"></textarea>
+            <textarea class="input-field" id="set" name="set"
+                placeholder="Inserisci le frasi da analizzare (una per ogni riga)"></textarea>
             <button class="button" id="set-button">Analizza</button>
             <button class="button" id="download-result-set" style="display: none;">Scarica risultati</button>
-            <button class="back-button" >Back</button>
+            <button class="back-button">Back</button>
 
         </div>
         <div class="ig-post functions" style="display: none;">
-            <input class="input-field"  type="text" id="phrase" name="phrase" placeholder="Link post instagram">
+            <p class="generic-label">Recati su <a href="https://exportcomments.com/" target="_blank">questo sito</a>,
+                usa il link del post,esporta i commenti come csv e caricali con l'apposita funzione</p>
+            <div class="file-input-container">
+                <label class="file-input-label" for="ig-post">Scegli un file</label>
+                <input type="file" id="ig-post" name="ig-post" class="file-input" accept=".csv">
+            </div>
             <button class="button" id="ig-post-button">Analizza</button>
-            <button class="back-button" >Back</button>
+            <button class="button" id="download-result-ig" style="display: none;">Scarica risultati</button>
+            <button class="back-button">Back</button>
 
         </div>
     </div>
@@ -145,7 +203,7 @@
             $(".logo").eq(0).show();
         });
 
-        const showCorrectMonkey = (sentiment) =>{
+        const showCorrectMonkey = (sentiment) => {
             $(".logo").hide();
             $(".modal").show();
             $(".sentiment-div").hide();
@@ -168,19 +226,19 @@
             axios.get(`http://localhost:8000/predict/${phrase}`).then((response) => {
                 console.log(response.data);
                 showCorrectMonkey(response.data.prediction);
-                
+
             });
         });
-        
+
         $("#set-button").click(function () {
             var set = $("#set").val();
             const items = set.split("\n");
-            axios.post(`http://localhost:8000/predict`, {items}).then((response) => {
+            axios.post(`http://localhost:8000/predict`, { items }).then((response) => {
                 const predictions = response.data.predictions;
-                const positive  = predictions.filter((el) => el.prediction === "POSITIVE");
-                const negative  = predictions.filter((el) => el.prediction === "NEGATIVE");
-                const neutral  = predictions.filter((el) => el.prediction === "NEUTRAL");
-                console.log("positive : ",positive.length," negative :", negative.length," neutral : " ,neutral.length);
+                const positive = predictions.filter((el) => el.prediction === "POSITIVE");
+                const negative = predictions.filter((el) => el.prediction === "NEGATIVE");
+                const neutral = predictions.filter((el) => el.prediction === "NEUTRAL");
+                console.log("positive : ", positive.length, " negative :", negative.length, " neutral : ", neutral.length);
                 if (positive.length > negative.length && positive.length > neutral.length) {
                     showCorrectMonkey("POSITIVE");
                 } else if (negative.length > positive.length && negative.length > neutral.length) {
@@ -188,7 +246,7 @@
                 } else {
                     showCorrectMonkey("NEUTRAL");
                 }
-                $("#download-result-set").slideDown();
+                $("#download-result-set").fadeIn();
                 $("#download-result-set").click(function () {
                     const text = predictions.map((el) => `original text : ${el.text} | sentiment : ${el.prediction}`).join("\n");
                     const blob = new Blob([text], { type: "text/plain" });
@@ -197,10 +255,67 @@
                     a.href = url;
                     a.download = "result.txt";
                     a.click();
+                    $("#download-result-set").fadeOut(2000);
                 });
             });
         });
 
+        $("#ig-post-button").click(function () {
+            const file = $("#ig-post")[0].files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const text = e.target.result;
+                    const comments = extractCommentsFromCSV(text);
+                    console.log(comments);
+                    axios.post(`http://localhost:8000/predict`, { items : comments }).then((response) => {
+                        const predictions = response.data.predictions;
+                        const positive = predictions.filter((el) => el.prediction === "POSITIVE");
+                        const negative = predictions.filter((el) => el.prediction === "NEGATIVE");
+                        const neutral = predictions.filter((el) => el.prediction === "NEUTRAL");
+                        console.log("positive : ", positive.length, " negative :", negative.length, " neutral : ", neutral.length);
+                        if (positive.length > negative.length && positive.length > neutral.length) {
+                            showCorrectMonkey("POSITIVE");
+                        } else if (negative.length > positive.length && negative.length > neutral.length) {
+                            showCorrectMonkey("NEGATIVE");
+                        } else {
+                            showCorrectMonkey("NEUTRAL");
+                        }
+                        $("#download-result-ig").fadeIn();
+                        $("#download-result-ig").click(function () {
+                            const text = predictions.map((el) => `original text : ${el.text} | sentiment : ${el.prediction}`).join("\n");
+                            const blob = new Blob([text], { type: "text/plain" });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "IG_DUMP_result.txt";
+                            a.click();
+                            $("#download-result-ig").fadeOut(2000);
+                        });
+                    });
+
+                };
+
+                reader.readAsText(file);
+            } else {
+                alert("Seleziona un file prima di procedere.");
+            }
+        });
+
+        // Funzione per estrarre i commenti da un CSV
+        function extractCommentsFromCSV(csvText) {
+            const lines = csvText.split('\n');
+            const comments = [];
+            for (let i = 2; i < lines.length; i++) {
+                const columns = lines[i].split(',');
+                const comment = columns[7];
+                if (comment) {
+                    comments.push(comment);
+                }
+            }
+            return comments;
+        }
     });
 </script>
 
