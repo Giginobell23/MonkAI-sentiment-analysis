@@ -12,6 +12,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
+
 class StringList(BaseModel):
     items: List[str]
 
@@ -41,14 +42,11 @@ def lemmatizza_testo(parole_tokenizzate):
 def rimuovi_stop_words(parole):
     return [parola for parola in parole if parola.lower() not in stop_words]
 
-
-
 def processa_testo(testo):
     parole_tokenizzate = tokenizza_testo(testo)
     parole_pulite = rimuovi_stop_words(parole_tokenizzate)
     parole_lemmatizzate = lemmatizza_testo(parole_pulite)
     return parole_lemmatizzate
-
 
 def predict_sentiment(text):
     processed_text = processa_testo(text)
